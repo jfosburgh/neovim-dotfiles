@@ -190,3 +190,5 @@ vim.o.hlsearch = true
 vim.o.ignorecase = true
 vim.o.smartcase = true
 vim.o.colorcolumn = "80"
+
+require("oil").setup()
