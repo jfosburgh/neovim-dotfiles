@@ -247,14 +247,6 @@ require("lazy").setup({
     build = ":TSUpdate",
   },
 
-  -- -- Conform (auto-format)
-  -- {
-  -- 	"stevearc/conform.nvim",
-  -- 	config = function()
-  -- 		require("conform").setup()
-  -- 	end,
-  -- },
-
   -- Harpoon
   "nvim-lua/plenary.nvim",
   {
@@ -302,8 +294,8 @@ vim.o.hlsearch = false
 vim.wo.number = true
 
 -- Enable mouse mode
-vim.o.mouse = "a"
-
+-- vim.o.mouse = "a"
+--
 -- Sync clipboard between OS and Neovim.
 --  Remove this option if you want your OS clipboard to remain independent.
 --  See `:help 'clipboard'`
@@ -460,8 +452,6 @@ vim.defer_fn(function()
       "bash",
     },
 
-    -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
-    auto_install = false,
     -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
     auto_install = false,
     -- Install languages synchronously (only applied to `ensure_installed`)
@@ -698,24 +688,6 @@ cmp.setup({
     { name = "path" },
   },
 })
-
--- -- Conform setup
--- require("conform").setup({
--- 	formatters_by_ft = {
--- 		lua = { "stylua" },
--- 		-- Conform will run multiple formatters sequentially
--- 		python = { "isort", "black" },
--- 		-- Use a sub-list to run only the first available formatter
--- 		javascript = { { "prettierd", "prettier" } },
--- 	},
--- })
--- -- format on save
--- vim.api.nvim_create_autocmd("BufWritePre", {
--- 	pattern = "*",
--- 	callback = function(args)
--- 		require("conform").format({ bufnr = args.buf })
--- 	end,
--- })
 
 -- Harpoon Config
 local harpoon = require("harpoon")
