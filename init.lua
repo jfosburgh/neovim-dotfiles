@@ -263,6 +263,23 @@ require("lazy").setup({
     dependencies = { "nvim-tree/nvim-web-devicons" },
   },
 
+  -- Go Development
+  {
+    "ray-x/go.nvim",
+    dependencies = { -- optional packages
+      "ray-x/guihua.lua",
+      "neovim/nvim-lspconfig",
+      "nvim-treesitter/nvim-treesitter",
+    },
+    config = function()
+      require("go").setup()
+    end,
+    event = { "CmdlineEnter" },
+    ft = { "go", 'gomod' },
+    build = ':lua require("go.install").update_all_sync()' -- if you need to install/update all binaries
+  },
+
+
   "folke/zen-mode.nvim",
   "ThePrimeagen/vim-be-good",
   "arnamak/stay-centered.nvim",
@@ -303,6 +320,9 @@ vim.o.clipboard = "unnamedplus"
 
 -- Enable break indent
 vim.o.breakindent = true
+vim.o.smartindent = true
+vim.o.shiftwidth = 4
+vim.o.tabstop = 4
 
 -- Save undo history
 vim.o.undofile = true
@@ -461,7 +481,7 @@ vim.defer_fn(function()
     -- You can specify additional Treesitter modules here: -- For example: -- playground = {--enable = true,-- },
     modules = {},
     highlight = { enable = true },
-    indent = { enable = true },
+    indent = { enable = false },
     incremental_selection = {
       enable = true,
       keymaps = {
@@ -561,6 +581,21 @@ local on_attach = function(_, bufnr)
   vim.api.nvim_buf_create_user_command(bufnr, "Format", function(_)
     vim.lsp.buf.format()
   end, { desc = "Format current buffer with LSP" })
+
+  vim.api.nvim_create_augroup('AutoFormatting', {})
+  vim.api.nvim_create_autocmd('BufWritePre', {
+    pattern = '*.lua, *.js, *.py, *.go',
+    group = 'AutoFormatting',
+    callback = function()
+      vim.lsp.buf.format({})
+    end,
+  })
+  -- vim.api.nvim_create_autocmd('BufPreWrite', {
+  --   pattern = '*.js',
+  --   callback = function()
+  --     vim.lsp.buf.format()
+  --   end,
+  -- })
 end
 
 -- document existing key chains
@@ -586,6 +621,7 @@ require("which-key").register({
 require("mason").setup()
 require("mason-lspconfig").setup()
 
+
 -- Enable the following language servers
 --  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
 --
@@ -597,7 +633,12 @@ require("mason-lspconfig").setup()
 local servers = {
   -- clangd = {},
   -- gopls = {},
-  -- pyright = {},
+  pyright = {
+    Python = {
+      workspace = { checkThirdParty = false },
+      telemetry = { enable = false },
+    }
+  },
   -- rust_analyzer = {},
   -- tsserver = {},
   -- html = { filetypes = { 'html', 'twig', 'hbs'} },
@@ -812,6 +853,75 @@ vim.o.colorcolumn = "80"
 vim.o.number = true
 vim.o.relativenumber = true
 vim.o.signcolumn = "number"
+
+-- Setup language servers.
+local lspconfig = require('lspconfig')
+lspconfig.eslint.setup({
+  capabilities = capabilities,
+  root_dir = lspconfig.util.root_pattern('.git'),
+  on_attach = on_attach
+})
+lspconfig.pyright.setup {
+  capabilities = capabilities,
+  root_dir = lspconfig.util.root_pattern('.git'),
+  on_attach = on_attach
+}
+-- lspconfig.tsserver.setup {}
+lspconfig.tsserver.setup {
+  capabilities = capabilities,
+  root_dir = lspconfig.util.root_pattern('.git'),
+  on_attach = on_attach
+}
+lspconfig.gopls.setup {
+  capabilities = capabilities,
+  root_dir = lspconfig.util.root_pattern('.git'),
+  on_attach = on_attach
+}
+-- lspconfig.rust_analyzer.setup {
+--   -- Server-specific settings. See `:help lspconfig-setup`
+--   settings = {
+--     ['rust-analyzer'] = {},
+--   },
+-- }
+
+
+-- Global mappings.
+-- See `:help vim.diagnostic.*` for documentation on any of the below functions
+vim.keymap.set('n', '<space>e', vim.diagnostic.open_float)
+vim.keymap.set('n', '[d', vim.diagnostic.goto_prev)
+vim.keymap.set('n', ']d', vim.diagnostic.goto_next)
+vim.keymap.set('n', '<space>q', vim.diagnostic.setloclist)
+
+-- Use LspAttach autocommand to only map the following keys
+-- after the language server attaches to the current buffer
+vim.api.nvim_create_autocmd('LspAttach', {
+  group = vim.api.nvim_create_augroup('UserLspConfig', {}),
+  callback = function(ev)
+    -- Enable completion triggered by <c-x><c-o>
+    vim.bo[ev.buf].omnifunc = 'v:lua.vim.lsp.omnifunc'
+
+    -- Buffer local mappings.
+    -- See `:help vim.lsp.*` for documentation on any of the below functions
+    local opts = { buffer = ev.buf }
+    vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
+    vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
+    vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
+    vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
+    vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, opts)
+    vim.keymap.set('n', '<space>wa', vim.lsp.buf.add_workspace_folder, opts)
+    vim.keymap.set('n', '<space>wr', vim.lsp.buf.remove_workspace_folder, opts)
+    vim.keymap.set('n', '<space>wl', function()
+      print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+    end, opts)
+    vim.keymap.set('n', '<space>D', vim.lsp.buf.type_definition, opts)
+    vim.keymap.set('n', '<space>rn', vim.lsp.buf.rename, opts)
+    vim.keymap.set({ 'n', 'v' }, '<space>ca', vim.lsp.buf.code_action, opts)
+    vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
+    vim.keymap.set('n', '<space>f', function()
+      vim.lsp.buf.format { async = true }
+    end, opts)
+  end,
+})
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
