@@ -283,6 +283,7 @@ require("lazy").setup({
   "folke/zen-mode.nvim",
   "ThePrimeagen/vim-be-good",
   "arnamak/stay-centered.nvim",
+  "diepm/vim-rest-console",
   "mbbill/undotree",
 
   -- NOTE: Next Step on Your Neovim Journey: Add/Configure additional "plugins" for kickstart
@@ -632,7 +633,7 @@ require("mason-lspconfig").setup()
 --  define the property 'filetypes' to the map in question.
 local servers = {
   -- clangd = {},
-  -- gopls = {},
+  gopls = {},
   pyright = {
     Python = {
       workspace = { checkThirdParty = false },
@@ -856,6 +857,16 @@ vim.o.signcolumn = "number"
 
 -- Setup language servers.
 local lspconfig = require('lspconfig')
+lspconfig.html.setup({
+  capabilities = capabilities,
+  root_dir = lspconfig.util.root_pattern('.git'),
+  on_attach = on_attach
+})
+-- lspconfig.sqls.setup({
+--   capabilities = capabilities,
+--   root_dir = lspconfig.util.root_pattern('.git'),
+--   on_attach = on_attach
+-- })
 lspconfig.eslint.setup({
   capabilities = capabilities,
   root_dir = lspconfig.util.root_pattern('.git'),
