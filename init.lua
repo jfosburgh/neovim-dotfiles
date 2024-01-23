@@ -255,14 +255,6 @@ require("lazy").setup({
     requires = { { "nvim-lua/plenary.nvim" } },
   },
 
-  -- Oil
-  {
-    "stevearc/oil.nvim",
-    opts = {},
-    -- Optional dependencies
-    dependencies = { "nvim-tree/nvim-web-devicons" },
-  },
-
   -- Go Development
   {
     "ray-x/go.nvim",
@@ -284,6 +276,7 @@ require("lazy").setup({
   "ThePrimeagen/vim-be-good",
   "arnamak/stay-centered.nvim",
   "diepm/vim-rest-console",
+  'preservim/nerdtree',
   "mbbill/undotree",
 
   -- NOTE: Next Step on Your Neovim Journey: Add/Configure additional "plugins" for kickstart
@@ -842,9 +835,6 @@ vim.cmd("colorscheme rose-pine")
 -- Stay centered
 require("stay-centered").setup()
 
--- Oil (terminal editor)
-require("oil").setup()
-
 -- Additional Customizations
 
 vim.o.cursorcolumn = true
@@ -858,6 +848,11 @@ vim.o.signcolumn = "number"
 -- Setup language servers.
 local lspconfig = require('lspconfig')
 lspconfig.html.setup({
+  capabilities = capabilities,
+  root_dir = lspconfig.util.root_pattern('.git'),
+  on_attach = on_attach
+})
+lspconfig.htmx.setup({
   capabilities = capabilities,
   root_dir = lspconfig.util.root_pattern('.git'),
   on_attach = on_attach
@@ -895,13 +890,15 @@ lspconfig.gopls.setup {
 --   },
 -- }
 
-
 -- Global mappings.
 -- See `:help vim.diagnostic.*` for documentation on any of the below functions
 vim.keymap.set('n', '<space>e', vim.diagnostic.open_float)
 vim.keymap.set('n', '[d', vim.diagnostic.goto_prev)
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next)
 vim.keymap.set('n', '<space>q', vim.diagnostic.setloclist)
+
+-- NerdTree mappings
+vim.keymap.set('n', '<leader>n', ':NERDTreeToggle<CR>')
 
 -- Use LspAttach autocommand to only map the following keys
 -- after the language server attaches to the current buffer
